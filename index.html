@@ -25,18 +25,27 @@
             backdrop-filter: blur(10px);
         }
     
-        #input {
+        .chat-input {
             border: none;
             padding: 0 1rem;
             flex-grow: 1;
             border-radius: 2rem;
             margin: 0.25rem;
+            outline: rgb(20, 19, 19);
+            background-color: black;
+            color: #fff;
+
         }
     
-        #input:focus {
+        .chat-input:focus {
             outline: none;
         }
     
+        .user-input{
+            width: 20px;
+            margin-right: 20px;
+            
+        }
         #form>button {
             background: #333;
             border: none;
@@ -65,12 +74,38 @@
 <body>
     <ul id="messages"></ul>
     <form id="form" action="">
-        <input id="input" autocomplete="off" />
+        <input class="chat-input user-input" placeholder="username" type="text" id="user" autocomplete="off" />
+        <input class="chat-input" id="input" autocomplete="off" placeholder="type your message here..."/>
+        
         <button>Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const user = document.getElementById('user');
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input.value) {
+                    const newObj ={
+                        message:input.value,
+                        user: user.value,
+                    };
+                    socket.emit('chat message', JSON.stringify(newObj));
+                    input.value = '';
+                }
+            });
+
+            socket.on('chat message', function (msg) {
+                    var item = document.createElement('li');
+                    const {message, user} = JSON.parse(msg);
+                    item.textContent = `${user}: ${message}`;
+                    messages.appendChild(item);
+                    window.scrollTo(0, document.body.scrollHeight);
+                });
     </script>
 </body>
 </html>
